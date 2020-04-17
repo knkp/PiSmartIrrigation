@@ -1,0 +1,3 @@
+[submodule "src/PiSmartIrrigation_Ng"]
+	path = src/PiSmartIrrigation_Ng
+	url = https://github.com/knkp/PiSmartIrrigation_Ng/
