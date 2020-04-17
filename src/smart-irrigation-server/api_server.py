@@ -33,7 +33,8 @@ def get_sensor_details(id=None):
             "id": 1, 
             "data": [1, 2, 3, 4, 5, 6], 
             "label": "Humidity 1", 
-            "type": "humidity" 
+            "type": "humidity",
+            "xLabels": ['1', '2', '3', '4', '5', '6'], 
     })
 
 if __name__ == "__main__":
