@@ -89,7 +89,7 @@ String Sensor_Manager::parseSerial(String input)
         is_mocking = true;
       }  
 
-      // now create the sensor, add what we know, add it to the heap so it's not lost after this method returns
+      // now create the sensor, add what we know, then add it to the heap so it's not lost after this method returns
       Moisture_Sensor* newSensor = new Moisture_Sensor;
       newSensor->setPin(AnalogPinMap[Analog_Sensor_Count]);
       newSensor->setLabel(label);
@@ -100,7 +100,7 @@ String Sensor_Manager::parseSerial(String input)
       // finally add it to the list
       AnalogSensorList[Analog_Sensor_Count] = newSensor;
 
-      // Last let's make sure we don't forget we're adding another, so iterate the count
+      // Last let's make sure we don't forget to iterate the count
       Analog_Sensor_Count++;
 
       result = "sensor added";
@@ -108,7 +108,7 @@ String Sensor_Manager::parseSerial(String input)
   // get with                      1
   // format to send: 'sensor data:<id>
   } else if(strncmp(input_char, "sensor data", 11) == 0){
-     // OK, this is slow, but once again we don't have to worry about threading so we can easily check for the correct sensor this way
+     // OK, this is slow, but once again we don't have to worry about threading so we can easily check for the correct sensor this way without worrying about corruption
      String _id = this->getValue(input, ':', 1);
      int id = _id.toInt();
      bool found = false;
@@ -124,7 +124,17 @@ String Sensor_Manager::parseSerial(String input)
      if(found == false){
       result = "Not Found";
      }
-  } else {
+  } 
+  // this one doesn't need any special formatting, other then maching what's in the check
+  else if(strncmp(input_char, "sensor ids", 10) == 0){
+    String id_list = "";
+    for(int sensor = 0; sensor < Analog_Sensor_Count; sensor++){
+      id_list +=  String(AnalogSensorList[sensor]->getId()) + ':';
+    }
+    result = id_list;
+    
+  }
+  else {
     // if nothing matches just reflect the input back
     result = input;
   }
