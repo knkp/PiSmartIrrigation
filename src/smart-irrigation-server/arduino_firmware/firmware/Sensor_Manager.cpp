@@ -66,6 +66,7 @@ String Sensor_Manager::parseSerial(String input)
 
   // get with                     1,    2,     3,       4
   // format to send: 'new sensor:<id>:<type>:<label>:<mocking>
+  // returns "sensor added", "full"
   if(strncmp(input_char, "new sensor", 10) == 0){
     // we're adding a new sensor, check if there is room and if so, add it to the list of things to check
 
@@ -107,6 +108,7 @@ String Sensor_Manager::parseSerial(String input)
     }
   // get with                      1
   // format to send: 'sensor data:<id>
+  // returns value, "Not Found"
   } else if(strncmp(input_char, "sensor data", 11) == 0){
      // OK, this is slow, but once again we don't have to worry about threading so we can easily check for the correct sensor this way without worrying about corruption
      String _id = this->getValue(input, ':', 1);
@@ -126,6 +128,7 @@ String Sensor_Manager::parseSerial(String input)
      }
   } 
   // this one doesn't need any special formatting, other then maching what's in the check
+  // returns "" if none, or "<first>:<second>:..<etc>:"
   else if(strncmp(input_char, "sensor ids", 10) == 0){
     String id_list = "";
     for(int sensor = 0; sensor < Analog_Sensor_Count; sensor++){
