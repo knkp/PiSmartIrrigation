@@ -71,7 +71,6 @@ def return_sensor_list():
             sensor_item["id"] = result.sensor_id
             sensor_item["name"] = result.label
             json_sensors[stype]["list"].append(sensor_item)
-    print(json_sensors, file=sys.stdout)
     return json_sensors
 
 def return_sensor_id_data(id):
