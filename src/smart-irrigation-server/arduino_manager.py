@@ -2,16 +2,40 @@ import sys, signal
 from serial import Serial, SerialException
 from time import sleep
 from api_server import db, Sensor, SensorData
+import serial.tools.list_ports
+
+def model_exists(model_class):
+    engine = db.get_engine(bind=model_class.__bind_key__)
+    return model_class.metadata.tables[model_class.__tablename__].exists(engine)
 
 # The connection to the arduino
 class ArduinoLink(object):
 	def __init__(self, _Port='COM10', _Baud = 115200):
+		self.detectArduino()
 		self.Connected = False
-		try:
-			self.ArduinoSer = Serial(_Port, _Baud, timeout=3.0)
-			self.Connected = True
-		except SerialException:
-			print('couldn\'t make a connection')
+		self.Port = _Port
+		if self.found:
+			try:
+				self.ArduinoSer = Serial(self.Port, _Baud, timeout=3.0)
+				self.Connected = True
+			except SerialException:
+				print('couldn\'t make a connection')
+
+	def detectArduino(self):
+		self.found = False
+		ports = list(serial.tools.list_ports.comports())
+		for p in ports:
+			port = p[0]
+			port_desc = p[1]
+			if "Arduino" in port_desc:
+				print(f"Arduino found on {port}")
+				self.Port = port
+				self.found = True
+				break
+		if self.found==False:
+			print("no Arduino found")
+
+
 
 	def writeLine(self, line):
 		if self.Connected:
@@ -32,9 +56,9 @@ class ArduinoManager(ArduinoLink):
 		ArduinoLink.__init__(self)
 	
 	# This adds mock sensors to the database and the arduino.
-	# Basically, the arduino will manage 'mock' (or in other words fake) sensors
+	# Basically, the arduino will manage mock sensors
 	# which will all return random numbers, we're doing it this way because we don't have 
-	# the sensors in yet to test them. Once they're in, we can add them in dynamically without omcking them
+	# the sensors in yet to test them. Once they're in, we can add them in dynamically without adding them
 	def makeMockSensorDb(self):
 		db.drop_all()
 		db.create_all()
@@ -49,6 +73,16 @@ class ArduinoManager(ArduinoLink):
 			count +=1 
 		
 		db.session.commit()
+	
+	def makeRealSensorDb(self):
+		# if tables are created, then don't bother regenerating the db
+		if model_exists(Sensor) == False:
+			print("no tables found, generate db")
+			db.create_all()
+		else:
+			print("tables found, don't rebuild db")
+		
+		
 
 
 	def addSensorToDb(self, sensor, _mocking=False):
@@ -111,6 +145,7 @@ signal.signal(signal.SIGINT, signal_handler)
 if __name__ == "__main__":
 	print("started arduino manager")
 	manager = ArduinoManager()
+#	manager.makeRealSensorDb()
 	manager.makeMockSensorDb()
 	while True:
 		sleep(1)
