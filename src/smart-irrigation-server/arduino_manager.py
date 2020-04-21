@@ -5,10 +5,10 @@ from api_server import db, Sensor, SensorData
 
 # The connection to the arduino
 class ArduinoLink(object):
-	def __init__(self, _Port='COM10', _Baud = 9600):
+	def __init__(self, _Port='COM10', _Baud = 115200):
 		self.Connected = False
 		try:
-			self.ArduinoSer = Serial(_Port, _Baud)
+			self.ArduinoSer = Serial(_Port, _Baud, timeout=3.0)
 			self.Connected = True
 		except SerialException:
 			print('couldn\'t make a connection')
@@ -22,6 +22,7 @@ class ArduinoLink(object):
 
 	def readLine(self):
 		if self.Connected:
+			# flush input buffer
 			return self.ArduinoSer.readline()
 		else:
 			return 'not connected'
@@ -81,6 +82,7 @@ class ArduinoManager(ArduinoLink):
 			print(f"getting data for sensor {sensor.sensor_id}")
 			self.writeLine(f"sensor data:{sensor.sensor_id}")
 			sleep(1) # wait a second, (eventually will probably push this to threading)
+			print('finished writing')
 			result = self.readLine()
 
 			if len(result) > 0:	
