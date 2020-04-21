@@ -76,7 +76,7 @@ def return_sensor_list():
 def return_sensor_id_data(id):
     # query the data
     sensor = Sensor.query.filter_by(sensor_id=id).first()
-    this_data = SensorData.query.with_parent(sensor).all()
+    this_data = SensorData.query.with_parent(sensor).order_by(SensorData.measured_time.desc()).limit(10)
     # assemble results 
     response = dict()
     response["id"] = sensor.sensor_id
@@ -85,12 +85,12 @@ def return_sensor_id_data(id):
 
     # collect data and labels
     data_itself = list()
-    xLables = list()
+    xLabels = list()
     for item in this_data:
-        data_itself.append(item.sensor_data)
-        xLables.append(item.measured_time)
+        data_itself.insert(0,item.sensor_data)
+        xLabels.insert(0,item.measured_time)
     response["data"] =  data_itself
-    response["xLabels"] = xLables
+    response["xLabels"] = xLabels
 
     return response
 
