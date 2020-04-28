@@ -102,6 +102,10 @@ def return_angular(path=None):
     else:
         return send_from_directory('ng-app', path)
 
+@app.route('/assets/img/<file>')
+def return_static(file=None):
+    return send_from_directory('ng-app/assets/img', file)
+
 @app.route('/api/sensors/list')
 def get_sensor_list():
     slist = return_sensor_list()
@@ -111,6 +115,18 @@ def get_sensor_list():
 def get_sensor_details(id=None):
     response = return_sensor_id_data(id)
     return response
+
+@app.route('/api/label', methods=['POST'])
+def update_label():
+    content = request.json
+    for label in content:
+        sensor = Sensor.query.filter_by(sensor_id=label['id']).first()
+        sensor.label = label['name']
+    db.session.commit()
+    result = {
+        'status':'complete'
+    }
+    return result
     
 
 if __name__ == "__main__":
