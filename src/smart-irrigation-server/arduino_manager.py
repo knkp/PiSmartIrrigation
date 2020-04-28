@@ -64,11 +64,11 @@ class ArduinoManager(ArduinoLink):
 		db.create_all()
 
 		# Mock 5 humidity sensors
-		total = 5
+		total = 4
 		count = 1
 		while count <= total:
 			labelStr = 'Humidity ' + str(count)
-			newSensor = Sensor(label=labelStr, sensor_type='humidity')
+			newSensor = Sensor(label=labelStr, sensor_type='Humidity')
 			db.session.add(newSensor)
 			count +=1 
 		
